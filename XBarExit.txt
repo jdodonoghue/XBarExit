@@ -1,0 +1,21 @@
+// Created by: John O'Donoghue
+// Github: https://github.com/jdodonoghue/XBarExit.git
+
+//If BarNumber = 1 then
+//	CLEARPRINTLOG;
+
+//Print("Date ", ELDateToString(Date), " time: ", Time , "abc", " marketposition ", marketposition);  
+input: Offset(1); // modify for market; NQ: 1, CL: 1; S: 0.25
+
+If marketposition = 1 then
+	Begin
+		Sell Next Bar at lowest(low[0], 2) - Offset Stop ;
+	End; 
+	 
+   
+If marketposition = -1 then
+	Begin
+		BuyToCover next bar at highest(high[0], 2) + Offset stop;
+	End;	
+	   
+
