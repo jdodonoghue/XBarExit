@@ -4,18 +4,52 @@
 //If BarNumber = 1 then
 //	CLEARPRINTLOG;
 
-//Print("Date ", ELDateToString(Date), " time: ", Time , "abc", " marketposition ", marketposition);  
-input: Offset(1); // modify for market; NQ: 1, CL: 1; S: 0.25
+input: Offset(4.25), barsBack(2); // modify for market; NQ: 1, CL: 1; S: 0.25
 
-If marketposition = 1 then
+var: sellPrice(0), origLowestLow(0), newLowestLow(0), lowestLow(0);
+var: buyPrice(0), origHighestHigh(0), newHighestHigh(0), highestHigh(0);
+
+// need to fix: 06/10/2021 12:14:39, exit is too late, need to reference barsBack when highest 2 bar low was formed, not 2 bars back recently
+// fixed on 2/25/2022
+
+	If marketposition = 1 then
 	Begin
-		Sell Next Bar at lowest(low[0], 2) - Offset Stop ;
+		
+		newLowestLow = lowest(low[0], barsBack);
+		
+		if Barssinceentry <= 1.00 then
+		begin
+			origLowestLow = newLowestLow;
+		end;
+		
+		if newLowestLow >= origLowestLow Then
+			origLowestLow = newLowestLow;
+		if newLowestLow < origLowestLow Then
+			origLowestLow = origLowestLow;
+		
+		sellPrice = origLowestLow;	
+		Sell Next Bar at sellPrice - Offset Stop ;
+		
 	End; 
-	 
-   
-If marketposition = -1 then
+	
+	If marketposition = -1 then
 	Begin
-		BuyToCover next bar at highest(high[0], 2) + Offset stop;
+		
+		newHighestHigh = highest(high[0], barsBack);
+		
+		if Barssinceentry <= 1.00 then
+		begin
+			origHighestHigh = newHighestHigh;
+		end;
+		
+		if newHighestHigh <= origHighestHigh Then
+			origHighestHigh = newHighestHigh;
+		if newHighestHigh > origHighestHigh Then
+			origHighestHigh = origHighestHigh;
+	   		
+	    buyPrice = origHighestHigh;	
+	    BuyToCover next bar at buyPrice + Offset stop;
+	    
+	   	
 	End;	
 	   
-
